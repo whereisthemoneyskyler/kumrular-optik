@@ -8,7 +8,7 @@ const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
   // Helper to format brand names (e.g. "EL AMORE" -> "El Amore")
   const formatBrand = (brand) => {
     if (!brand) return '';
-    return brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+    return brand.trim().replace(/\s+/g, ' ').split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
   };
 
   // Derive available brands from products (case-insensitive deduplication)
@@ -143,6 +143,7 @@ const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
           gap: 30px;
+          align-items: start;
         }
 
         @media (max-width: 768px) {
