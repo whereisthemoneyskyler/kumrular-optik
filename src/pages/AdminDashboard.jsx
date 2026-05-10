@@ -76,6 +76,7 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
               >
                 <option value="Kontak Lens">Kontak Lens</option>
                 <option value="Renkli Lens">Renkli Lens</option>
+                <option value="Torik Lens">Torik Lensler</option>
               </select>
             </div>
             <div className="form-group">

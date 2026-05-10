@@ -26,6 +26,7 @@ const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
               <li className={filter === 'All' ? 'active' : ''} onClick={() => setFilter('All')}>Tümü</li>
               <li className={filter === 'Kontak Lens' ? 'active' : ''} onClick={() => setFilter('Kontak Lens')}>Kontak Lensler</li>
               <li className={filter === 'Renkli Lens' ? 'active' : ''} onClick={() => setFilter('Renkli Lens')}>Renkli Lensler</li>
+              <li className={filter === 'Torik Lens' ? 'active' : ''} onClick={() => setFilter('Torik Lens')}>Torik Lensler</li>
             </ul>
 
             <div className="filter-group">

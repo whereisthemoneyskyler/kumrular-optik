@@ -1,5 +1,6 @@
 import kontakCat from '../assets/kontak-cat.png';
 import renkliCat from '../assets/renkli-cat.png';
+import toricCat from '../assets/toric-cat.png';
 
 const Home = ({ onNavigate, onShopNavigate }) => {
   return (
@@ -27,7 +28,7 @@ const Home = ({ onNavigate, onShopNavigate }) => {
           <div className="accent-line"></div>
         </div>
         
-        <div className="collection-grid dual-grid">
+        <div className="collection-grid">
           <div className="collection-card glass" onClick={() => onShopNavigate('Kontak Lens')}>
             <div className="card-img">
                <img src={kontakCat} alt="Kontak Lensler" />
@@ -46,6 +47,17 @@ const Home = ({ onNavigate, onShopNavigate }) => {
             <div className="card-content">
               <h3>Renkli Lensler</h3>
               <p>Doğal görünümlü renk seçenekleriyle stilinizi yansıtın.</p>
+              <span className="learn-more">İncele →</span>
+            </div>
+          </div>
+
+          <div className="collection-card glass" onClick={() => onShopNavigate('Torik Lens')}>
+             <div className="card-img">
+               <img src={toricCat} alt="Torik Lensler" />
+            </div>
+            <div className="card-content">
+              <h3>Torik Lensler</h3>
+              <p>Astigmatlı gözler için özel tasarlanmış net görüş sağlayan lensler.</p>
               <span className="learn-more">İncele →</span>
             </div>
           </div>
@@ -142,6 +154,11 @@ const Home = ({ onNavigate, onShopNavigate }) => {
         .collection-grid.dual-grid {
           grid-template-columns: repeat(2, 1fr);
           max-width: 900px;
+          margin: 0 auto;
+        }
+
+        .collection-grid {
+          max-width: 1200px;
           margin: 0 auto;
         }
 
