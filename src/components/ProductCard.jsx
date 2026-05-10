@@ -85,6 +85,9 @@ const ProductCard = ({ product, onAddToCart }) => {
 
         .product-info {
           padding: 24px;
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
         }
 
         .product-brand {
@@ -101,6 +104,7 @@ const ProductCard = ({ product, onAddToCart }) => {
           font-size: 1.1rem;
           margin-bottom: 20px;
           font-weight: 500;
+          flex-grow: 1;
         }
 
         .product-footer {

@@ -5,12 +5,19 @@ const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
   const [filter, setFilter] = useState(initialFilter);
   const [brandFilter, setBrandFilter] = useState('All');
 
-  // Derive available brands from products
-  const availableBrands = [...new Set(products.map(p => p.brand))].filter(Boolean);
+  // Helper to format brand names (e.g. "EL AMORE" -> "El Amore")
+  const formatBrand = (brand) => {
+    if (!brand) return '';
+    return brand.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+  };
+
+  // Derive available brands from products (case-insensitive deduplication)
+  const availableBrands = [...new Set(products.map(p => formatBrand(p.brand)))].filter(Boolean);
 
   const filteredProducts = products.filter(p => {
     const categoryMatch = filter === 'All' || p.category === filter;
-    const brandMatch = brandFilter === 'All' || p.brand === brandFilter;
+    const formattedProductBrand = formatBrand(p.brand);
+    const brandMatch = brandFilter === 'All' || formattedProductBrand === brandFilter;
     return categoryMatch && brandMatch;
   });
 
