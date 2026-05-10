@@ -3,9 +3,15 @@ import ProductCard from '../components/ProductCard';
 
 const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
   const [filter, setFilter] = useState(initialFilter);
+  const [brandFilter, setBrandFilter] = useState('All');
+
+  // Derive available brands from products
+  const availableBrands = [...new Set(products.map(p => p.brand))].filter(Boolean);
 
   const filteredProducts = products.filter(p => {
-    return filter === 'All' || p.category === filter;
+    const categoryMatch = filter === 'All' || p.category === filter;
+    const brandMatch = brandFilter === 'All' || p.brand === brandFilter;
+    return categoryMatch && brandMatch;
   });
 
   return (
@@ -32,11 +38,18 @@ const Shop = ({ onAddToCart, initialFilter = 'All', products = [] }) => {
             <div className="filter-group">
               <h4>Markalar</h4>
               <ul>
-              <li>CooperVision</li>
-              <li>Alcon</li>
-              <li>Johnson & Johnson</li>
-              <li>Solotica</li>
-              <li>Desio</li>
+                <li className={brandFilter === 'All' ? 'active' : ''} onClick={() => setBrandFilter('All')}>
+                  Tüm Markalar
+                </li>
+                {availableBrands.map((brand, index) => (
+                  <li 
+                    key={index} 
+                    className={brandFilter === brand ? 'active' : ''} 
+                    onClick={() => setBrandFilter(brand)}
+                  >
+                    {brand}
+                  </li>
+                ))}
               </ul>
             </div>
           </aside>
