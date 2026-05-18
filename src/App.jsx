@@ -7,7 +7,7 @@ import About from './pages/About';
 import LoginPage from './pages/LoginPage';
 import AdminDashboard from './pages/AdminDashboard';
 import CartSidebar from './components/CartSidebar';
-import { supabase } from './supabaseClient';
+import { supabase, supabaseUrl, supabaseAnonKey } from './supabaseClient';
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -154,21 +154,28 @@ function App() {
         finalImageUrl = publicUrl;
       }
 
-      // 2. Save to Database
-      const { error: dbError } = await supabase
-        .from('products')
-        .update({
+      // 2. Save to Database using POST + X-HTTP-Method-Override to bypass CORS/proxy PATCH blocks
+      const response = await fetch(`${supabaseUrl}/rest/v1/products?id=eq.${id}`, {
+        method: 'POST',
+        headers: {
+          'apikey': supabaseAnonKey,
+          'Authorization': `Bearer ${supabaseAnonKey}`,
+          'Content-Type': 'application/json',
+          'X-HTTP-Method-Override': 'PATCH'
+        },
+        body: JSON.stringify({
           name: updatedProduct.name,
           brand: updatedProduct.brand,
           category: updatedProduct.category,
           price: updatedProduct.price,
           image_url: finalImageUrl
         })
-        .eq('id', id);
+      });
       
-      if (dbError) {
-        console.error('Supabase DB Error:', dbError);
-        alert('Veritabanı Hatası: ' + dbError.message);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Fetch DB Error:', errorText);
+        alert('Veritabanı Hatası: ' + errorText);
       } else {
         alert('Ürün başarıyla güncellendi!');
         fetchProducts(); // Refresh list
