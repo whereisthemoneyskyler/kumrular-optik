@@ -126,6 +126,59 @@ function App() {
     }
   };
 
+  const updateProduct = async (id, updatedProduct) => {
+    try {
+      let finalImageUrl = updatedProduct.imageUrl;
+
+      // 1. If there's a new image file, upload it
+      if (updatedProduct.imageFile) {
+        const fileExt = updatedProduct.imageFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, updatedProduct.imageFile);
+
+        if (uploadError) {
+          console.error('Storage Upload Error:', uploadError);
+          alert('Dosya Yükleme Hatası: ' + uploadError.message);
+          return;
+        }
+
+        // Get Public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        finalImageUrl = publicUrl;
+      }
+
+      // 2. Save to Database
+      const { error: dbError } = await supabase
+        .from('products')
+        .update({
+          name: updatedProduct.name,
+          brand: updatedProduct.brand,
+          category: updatedProduct.category,
+          price: updatedProduct.price,
+          image_url: finalImageUrl
+        })
+        .eq('id', id);
+      
+      if (dbError) {
+        console.error('Supabase DB Error:', dbError);
+        alert('Veritabanı Hatası: ' + dbError.message);
+      } else {
+        alert('Ürün başarıyla güncellendi!');
+        fetchProducts(); // Refresh list
+      }
+    } catch (err) {
+      console.error('Unexpected Error:', err);
+      alert('Beklenmedik bir hata oluştu: ' + err.message);
+    }
+  };
+
   const navigateToShop = (filter = 'All') => {
     setShopFilter(filter);
     setCurrentPage('shop');
@@ -158,6 +211,7 @@ function App() {
             products={products} 
             onAdd={addProduct} 
             onDelete={removeProduct} 
+            onUpdate={updateProduct}
             onLogout={onLogout}
           />
         ) : <LoginPage onLogin={onLogin} />;

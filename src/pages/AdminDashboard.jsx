@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
+const AdminDashboard = ({ products, onAdd, onDelete, onUpdate, onLogout }) => {
   const [newProduct, setNewProduct] = useState({
     name: '',
     brand: '',
@@ -10,30 +10,47 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
     imageFile: null
   });
 
+  const [editingProduct, setEditingProduct] = useState(null);
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setNewProduct(prev => ({ ...prev, imageFile: file }));
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewProduct(prev => ({ ...prev, imageUrl: reader.result }));
-      };
-      reader.readAsDataURL(file);
+      if (editingProduct) {
+        setEditingProduct(prev => ({ ...prev, imageFile: file }));
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setEditingProduct(prev => ({ ...prev, imageUrl: reader.result }));
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setNewProduct(prev => ({ ...prev, imageFile: file }));
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setNewProduct(prev => ({ ...prev, imageUrl: reader.result }));
+        };
+        reader.readAsDataURL(file);
+      }
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!newProduct.name || !newProduct.price) return;
-    onAdd(newProduct);
-    setNewProduct({
-      name: '',
-      brand: '',
-      category: 'Kontak Lens',
-      price: '',
-      imageUrl: '',
-      imageFile: null
-    });
+    if (editingProduct) {
+      if (!editingProduct.name || !editingProduct.price) return;
+      onUpdate(editingProduct.id, editingProduct);
+      setEditingProduct(null);
+    } else {
+      if (!newProduct.name || !newProduct.price) return;
+      onAdd(newProduct);
+      setNewProduct({
+        name: '',
+        brand: '',
+        category: 'Kontak Lens',
+        price: '',
+        imageUrl: '',
+        imageFile: null
+      });
+    }
   };
 
   return (
@@ -46,16 +63,22 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
       </div>
 
       <div className="admin-grid">
-        {/* Add Product Form */}
+        {/* Add / Edit Product Form */}
         <section className="admin-card glass">
-          <h2 className="gold-text">Yeni Ürün Ekle</h2>
+          <h2 className="gold-text">{editingProduct ? 'Ürünü Düzenle' : 'Yeni Ürün Ekle'}</h2>
           <form onSubmit={handleSubmit} className="admin-form">
             <div className="form-group">
               <label>Ürün Adı</label>
               <input 
                 type="text" 
-                value={newProduct.name} 
-                onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                value={editingProduct ? editingProduct.name : newProduct.name} 
+                onChange={(e) => {
+                  if (editingProduct) {
+                    setEditingProduct({...editingProduct, name: e.target.value});
+                  } else {
+                    setNewProduct({...newProduct, name: e.target.value});
+                  }
+                }}
                 placeholder="Örn: Biofinity Silikon"
               />
             </div>
@@ -63,33 +86,52 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
               <label>Marka</label>
               <input 
                 type="text" 
-                value={newProduct.brand} 
-                onChange={(e) => setNewProduct({...newProduct, brand: e.target.value})}
+                value={editingProduct ? editingProduct.brand : newProduct.brand} 
+                onChange={(e) => {
+                  if (editingProduct) {
+                    setEditingProduct({...editingProduct, brand: e.target.value});
+                  } else {
+                    setNewProduct({...newProduct, brand: e.target.value});
+                  }
+                }}
                 placeholder="Örn: CooperVision"
               />
             </div>
             <div className="form-group">
               <label>Kategori</label>
               <select 
-                value={newProduct.category} 
-                onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                value={editingProduct ? editingProduct.category : newProduct.category} 
+                onChange={(e) => {
+                  if (editingProduct) {
+                    setEditingProduct({...editingProduct, category: e.target.value});
+                  } else {
+                    setNewProduct({...newProduct, category: e.target.value});
+                  }
+                }}
               >
                 <option value="Kontak Lens">Kontak Lens</option>
                 <option value="Renkli Lens">Renkli Lens</option>
                 <option value="Torik Lens">Torik Lensler</option>
+                <option value="Multifocal Lens">Multifocal Lensler</option>
               </select>
             </div>
             <div className="form-group">
               <label>Fiyat (TL)</label>
               <input 
                 type="text" 
-                value={newProduct.price} 
-                onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
+                value={editingProduct ? editingProduct.price : newProduct.price} 
+                onChange={(e) => {
+                  if (editingProduct) {
+                    setEditingProduct({...editingProduct, price: e.target.value});
+                  } else {
+                    setNewProduct({...newProduct, price: e.target.value});
+                  }
+                }}
                 placeholder="Örn: 1.200"
               />
             </div>
             <div className="form-group">
-              <label>Ürün Görseli (PNG/JPG)</label>
+              <label>{editingProduct ? 'Görseli Değiştir (İsteğe Bağlı)' : 'Ürün Görseli (PNG/JPG)'}</label>
               <input 
                 type="file" 
                 accept="image/*"
@@ -98,13 +140,23 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
               <small style={{display: 'block', marginTop: '5px', color: 'var(--text-secondary)', fontSize: '0.75rem'}}>
                 * Maksimum 1MB. Daha büyük dosyalar yüklenemez.
               </small>
-              {newProduct.imageUrl && (
+              {((editingProduct && editingProduct.imageUrl) || (!editingProduct && newProduct.imageUrl)) && (
                 <div className="image-preview">
-                  <img src={newProduct.imageUrl} alt="Önizleme" />
+                  <img src={editingProduct ? editingProduct.imageUrl : newProduct.imageUrl} alt="Önizleme" />
                 </div>
               )}
             </div>
-            <button type="submit" className="gold-btn">Ürünü Yayınla</button>
+            <button type="submit" className="gold-btn">{editingProduct ? 'Değişiklikleri Kaydet' : 'Ürünü Yayınla'}</button>
+            {editingProduct && (
+              <button 
+                type="button" 
+                className="secondary-btn" 
+                onClick={() => setEditingProduct(null)}
+                style={{ marginTop: '10px', width: '100%', background: 'rgba(255,255,255,0.05)' }}
+              >
+                İptal Et
+              </button>
+            )}
           </form>
         </section>
 
@@ -125,6 +177,20 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
                 </div>
                 <div className="item-actions">
                   <span className="price">{p.price} TL</span>
+                  <button 
+                    onClick={() => setEditingProduct({
+                      id: p.id,
+                      name: p.name,
+                      brand: p.brand,
+                      category: p.category,
+                      price: p.price,
+                      imageUrl: p.imageUrl,
+                      imageFile: null
+                    })} 
+                    className="edit-btn"
+                  >
+                    Düzenle
+                  </button>
                   <button onClick={() => onDelete(p.id)} className="delete-btn">Sil</button>
                 </div>
               </div>
@@ -273,6 +339,15 @@ const AdminDashboard = ({ products, onAdd, onDelete, onLogout }) => {
           font-weight: 600;
           font-size: 0.9rem;
           cursor: pointer;
+        }
+
+        .edit-btn {
+          color: var(--accent-color);
+          font-weight: 600;
+          font-size: 0.9rem;
+          cursor: pointer;
+          background: none;
+          border: none;
         }
 
         @media (max-width: 900px) {

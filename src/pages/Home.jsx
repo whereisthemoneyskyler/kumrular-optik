@@ -1,6 +1,7 @@
 import kontakCat from '../assets/kontak-cat.png';
 import renkliCat from '../assets/renkli-cat.png';
 import toricCat from '../assets/toric-cat.png';
+import multifocalCat from '../assets/multifocal-cat.png';
 
 const Home = ({ onNavigate, onShopNavigate }) => {
   return (
@@ -58,6 +59,17 @@ const Home = ({ onNavigate, onShopNavigate }) => {
             <div className="card-content">
               <h3>Torik Lensler</h3>
               <p>Astigmatlı gözler için özel tasarlanmış net görüş sağlayan lensler.</p>
+              <span className="learn-more">İncele →</span>
+            </div>
+          </div>
+
+          <div className="collection-card glass" onClick={() => onShopNavigate('Multifocal Lens')}>
+             <div className="card-img">
+               <img src={multifocalCat} alt="Multifocal Lensler" />
+            </div>
+            <div className="card-content">
+              <h3>Multifocal Lensler</h3>
+              <p>Yakın ve uzak görüşü tek bir lenste birleştiren üstün konfor.</p>
               <span className="learn-more">İncele →</span>
             </div>
           </div>
@@ -147,8 +159,8 @@ const Home = ({ onNavigate, onShopNavigate }) => {
 
         .collection-grid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 30px;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
         }
 
         .collection-grid.dual-grid {
