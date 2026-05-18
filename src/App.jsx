@@ -154,28 +154,33 @@ function App() {
         finalImageUrl = publicUrl;
       }
 
-      // 2. Save to Database using POST + X-HTTP-Method-Override to bypass CORS/proxy PATCH blocks
-      const response = await fetch(`${supabaseUrl}/rest/v1/products?id=eq.${id}`, {
-        method: 'POST',
-        headers: {
-          'apikey': supabaseAnonKey,
-          'Authorization': `Bearer ${supabaseAnonKey}`,
-          'Content-Type': 'application/json',
-          'X-HTTP-Method-Override': 'PATCH'
-        },
-        body: JSON.stringify({
+      // 2. Delete the old product record
+      const { error: deleteError } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
+
+      if (deleteError) {
+        console.error('Delete Error:', deleteError);
+        alert('Eski ürün güncellenirken silinemedi: ' + deleteError.message);
+        return;
+      }
+
+      // 3. Insert the updated product record with the exact same ID
+      const { error: insertError } = await supabase
+        .from('products')
+        .insert([{
+          id: id, // Keep the same ID so order and references are preserved
           name: updatedProduct.name,
           brand: updatedProduct.brand,
           category: updatedProduct.category,
           price: updatedProduct.price,
           image_url: finalImageUrl
-        })
-      });
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Fetch DB Error:', errorText);
-        alert('Veritabanı Hatası: ' + errorText);
+        }]);
+
+      if (insertError) {
+        console.error('Insert Error:', insertError);
+        alert('Güncellenmiş ürün kaydedilemedi: ' + insertError.message);
       } else {
         alert('Ürün başarıyla güncellendi!');
         fetchProducts(); // Refresh list
